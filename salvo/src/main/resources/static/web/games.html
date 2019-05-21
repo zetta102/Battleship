@@ -1,0 +1,33 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="UTF-8">
+    <meta name="description" content="Game test webstite">
+    <meta name="author" content="Jose Sierra">
+    <meta name="keywords" content="New York Soccer League, New York, Soccer League, League">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Firebase Database Quickstart">
+    <meta name="theme-color" content="#303F9F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Firebase Database Quickstart">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#303F9F">
+    <meta name="msapplication-TileColor" content="#3372DF">
+    <meta name="msapplication-navbutton-color" content="#303F9F">
+    <title>Games | Home</title>
+</head>
+<body>
+<div id="game">
+<h1>Salvo!</h1>
+<ol >
+<li v-for= "game in games">Game #: {{game.id}} Creation Date: {{game.created}}:
+    <ul>
+        <li v-for= "gamePlayer in game.gamePlayers">{{gamePlayer.player.email}}</li>
+    </ul>
+</li>
+</ol>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="games.js"></script>
+</div>
+</body>
