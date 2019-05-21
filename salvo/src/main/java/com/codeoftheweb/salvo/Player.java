@@ -5,6 +5,10 @@ package com.codeoftheweb.salvo;
 
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
 
 
 @Entity
@@ -27,6 +31,14 @@ public class Player {
         eMail = mail;
         password = pass;
         userName = user;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getFirstName() {
@@ -67,5 +79,17 @@ public class Player {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
+    Set<GamePlayer> gamePlayers;
+
+    public void addGamePlayer(GamePlayer gamePlayer) {
+        gamePlayer.setPlayer(this);
+        gamePlayers.add(gamePlayer);
+}
+
+    public List<Game> getGames() {
+        return gamePlayers.stream().map(GamePlayer::getGame).collect(toList());
     }
 }
