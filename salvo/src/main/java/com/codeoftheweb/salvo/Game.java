@@ -1,7 +1,6 @@
 package com.codeoftheweb.salvo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,14 +12,36 @@ import static java.util.stream.Collectors.toList;
 public class Game {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     private long id;
     private LocalDateTime creationDate;
 
     public Game() { }
 
     public Game(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
+        this.setCreationDate(creationDate);
+    }
+
+    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER)
+    private
+    Set<GamePlayer> gamePlayers;
+
+    public Set<GamePlayer> getGamePlayers() {
+        return gamePlayers;
+    }
+
+    public void setGamePlayers(Set<GamePlayer> gamePlayers) {
+        this.gamePlayers = gamePlayers;
+    }
+
+    public void addGamePlayer(GamePlayer gamePlayer) {
+        gamePlayer.setGame(this);
+        getGamePlayers().add(gamePlayer);
+    }
+
+    @JsonIgnore
+    public List<Player> getPlayers() {
+        return getGamePlayers().stream().map(GamePlayer::getPlayer).collect(toList());
     }
 
     public long getId() {
@@ -35,28 +56,7 @@ public class Game {
         return creationDate;
     }
 
-    public void setCreationDate(LocalDateTime creationDate) {
+    private void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
-    }
-
-    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER)
-    Set<GamePlayer> gamePlayers;
-
-    public Set<GamePlayer> getGamePlayers() {
-        return gamePlayers;
-    }
-
-    public void setGamePlayers(Set<GamePlayer> gamePlayers) {
-        this.gamePlayers = gamePlayers;
-    }
-
-    public void addGamePlayer(GamePlayer gamePlayer) {
-        gamePlayer.setGame(this);
-        gamePlayers.add(gamePlayer);
-    }
-
-    @JsonIgnore
-    public List<Player> getPlayers() {
-        return gamePlayers.stream().map(GamePlayer::getPlayer).collect(toList());
     }
 }

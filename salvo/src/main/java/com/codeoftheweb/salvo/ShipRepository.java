@@ -6,6 +6,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.util.List;
 
 @RepositoryRestResource
-interface GameRepository extends JpaRepository<Game, Long> {
-    List<Game> findByCreationDate(String date);
+public interface ShipRepository extends JpaRepository<Ship, Long> {
+    List<Ship> findByShipType(String Type);
 }

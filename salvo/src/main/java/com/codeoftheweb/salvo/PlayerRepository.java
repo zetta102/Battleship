@@ -6,6 +6,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.util.List;
 
 @RepositoryRestResource
-public interface PlayerRepository extends JpaRepository<Player, Long> {
+interface PlayerRepository extends JpaRepository<Player, Long> {
     List<Player> findByLastName(String lastName);
 }
