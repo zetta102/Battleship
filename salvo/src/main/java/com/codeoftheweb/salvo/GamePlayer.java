@@ -25,19 +25,28 @@ public class GamePlayer {
     private final
     Set<Ship> ships = new HashSet<>();
 
+    @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private final
+    Set<Salvo> salvoes = new HashSet<>();
+
     public GamePlayer() { }
 
     public GamePlayer(Player player, Game game, LocalDateTime gamePlayerDate) {
-        this.player = player;
-        this.game = game;
-        this.gamePlayerDate = gamePlayerDate;
+        this.setPlayer(player);
+        this.setGame(game);
+        this.setGamePlayerDate(gamePlayerDate);
     }
 
     public Set<Ship> getShips() {return ships;}
 
+    public void addSalvo(Salvo salvo){
+      salvo.setGamePlayer(this);
+      getSalvoes().add(salvo);
+    }
+
     public void addShip(Ship ship){
-      ship.setGamePlayer(this);
-      ships.add(ship);
+        ship.setGamePlayer(this);
+        getShips().add(ship);
     }
 
     public long getId() {
@@ -70,5 +79,9 @@ public class GamePlayer {
 
     public void setGamePlayerDate(LocalDateTime gamePlayerDate) {
         this.gamePlayerDate = gamePlayerDate;
+    }
+
+    public Set<Salvo> getSalvoes() {
+        return salvoes;
     }
 }

@@ -1,6 +1,7 @@
 package com.codeoftheweb.salvo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,6 +38,10 @@ public class Game {
     public void addGamePlayer(GamePlayer gamePlayer) {
         gamePlayer.setGame(this);
         getGamePlayers().add(gamePlayer);
+    }
+
+    public Game(Set<GamePlayer> gamePlayers) {
+        this.gamePlayers = gamePlayers;
     }
 
     @JsonIgnore

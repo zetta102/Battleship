@@ -20,10 +20,10 @@ class SalvoController {
     @Autowired
     private GamePlayerRepository gamePlayerRepository;
 
-    @RequestMapping("/owners/{ownerId}")
-    public Map <String, Object> findOwner(@PathVariable Long ownerId) {
+    @RequestMapping("/game_view/{nn}")
+    public Map <String, Object> findOwner(@PathVariable Long nn) {
         Map <String, Object> map = new HashMap<>();
-        Optional<GamePlayer> optionalGamePlayer = gamePlayerRepository.findById(ownerId);
+        Optional<GamePlayer> optionalGamePlayer = gamePlayerRepository.findById(nn);
         if(optionalGamePlayer.isPresent()) {
             GamePlayer gamePlayer = optionalGamePlayer.get();
             map = this.game_viewDTO(gamePlayer);
@@ -45,6 +45,14 @@ class SalvoController {
         dto.put("created", gamePlayer.getGame().getCreationDate());
         dto.put("gamePlayers", gamePlayer.getGame().getGamePlayers().stream().map(this::gamePlayersDTO).collect(Collectors.toList()));
         dto.put("ships", gamePlayer.getShips().stream().map(this::ShipDTO));
+        dto.put("salvos", gamePlayer.getGame().getGamePlayers().stream().flatMap(sgp -> sgp.getSalvoes().stream().map(this::salvoDTO)));
+        return dto;
+    }
+
+    private Map<String, Object> salvoDTO(Salvo salvo) {
+        Map<String, Object> dto = new LinkedHashMap<>();
+        dto.put("turnNumber", salvo.getTurnNumber());
+        dto.put("location", salvo.getLocations());
         return dto;
     }
 
