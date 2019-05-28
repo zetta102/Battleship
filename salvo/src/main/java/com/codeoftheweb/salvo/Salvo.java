@@ -28,8 +28,6 @@ public class Salvo {
 
     public Salvo() { }
 
-    public Salvo(GamePlayer gamePlayer1, int i, ArrayList<String> strings) {
-    }
     public long getId() {
         return id;
     }

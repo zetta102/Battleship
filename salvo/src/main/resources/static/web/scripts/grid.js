@@ -32,8 +32,10 @@ const loadGrid = function () {
 
 
     setShips()
-    
-    createGrid(11, $(".grid-ships"))
+
+
+
+    createGrid(11, $(".grid-ships"), 'ships')
 
 
     rotateShips("carrier", 5)
@@ -42,8 +44,8 @@ const loadGrid = function () {
     rotateShips("destroyer", 3)
     rotateShips("patrol_boat",2)
 
-    listenBusyCells()
-    $('.grid-stack').on('change', listenBusyCells)
+    listenBusyCells('ships')
+    $('.grid-stack').on('change', function(){ listenBusyCells('ships')})
 
 
     //all the functionalities are explained in the gridstack github
@@ -53,7 +55,7 @@ const loadGrid = function () {
 
 
 //creates the grid structure
-const createGrid = function(size, element){
+const createGrid = function(size, element, id){
 
     let wrapper = document.createElement('DIV')
     wrapper.classList.add('grid-wrapper')
@@ -61,14 +63,14 @@ const createGrid = function(size, element){
     for(let i = 0; i < size; i++){
         let row = document.createElement('DIV')
         row.classList.add('grid-row')
-        row.id =`grid-row${i}`
+        row.id =id+`grid-row${i}`
         wrapper.appendChild(row)
 
         for(let j = 0; j < size; j++){
             let cell = document.createElement('DIV')
             cell.classList.add('grid-cell')
             if(i > 0 && j > 0)
-            cell.id = `${i - 1}${ j - 1}`
+            cell.id = id+`${i - 1}${ j - 1}`
 
             if(j===0 && i > 0){
                 let textNode = document.createElement('SPAN')
@@ -131,13 +133,13 @@ const rotateShips = function(shipType, cells){
 }
 
 //loops over all the grid cells, verifying if they are empty or busy
-const listenBusyCells = function(){
+const listenBusyCells = function(id){
     for(let i = 0; i < 10; i++){
         for(let j = 0; j < 10; j++){
             if(!grid.isAreaEmpty(i,j)){
-                $(`#${j}${i}`).addClass('busy-cell').removeClass('empty-cell')
+                $(`#${id}${j}${i}`).addClass('busy-cell').removeClass('empty-cell')
             } else{
-                $(`#${j}${i}`).removeClass('busy-cell').addClass('empty-cell')
+                $(`#${id}${j}${i}`).removeClass('busy-cell').addClass('empty-cell')
             }
         }
     }
@@ -168,6 +170,20 @@ const setShips = function(){
 
 
 
+    }
+}
+
+const setSalvoes = function(){
+
+    for(i = 0; i < gamesData.salvos.length; i++){
+        for(j = 0; j<gamesData.salvos[i].location.length; j++) {
+            let turnNum = gamesData.salvos[i].turnNumber
+            let x = +(gamesData.salvos[i].location[j][1]) - 1
+            let y = stringToInt(gamesData.salvos[i].location[j][0].toUpperCase())
+
+            document.getElementById("salvoes"+y+x).classList.add("salvo")
+             document.getElementById("salvoes"+y+x).innerHTML=turnNum
+        }
     }
 }
 
