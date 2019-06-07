@@ -1,6 +1,7 @@
 package com.codeoftheweb.salvo;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,8 +11,11 @@ import static java.util.stream.Collectors.toList;
 public class Player {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @OneToMany(mappedBy = "player", fetch = FetchType.EAGER)
+    private Set<Score> scores = new HashSet<>();
 
     @OneToMany(mappedBy = "player", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private
@@ -83,11 +87,31 @@ public class Player {
 
     public void addGamePlayer(GamePlayer gamePlayer) {
         gamePlayer.setPlayer(this);
-        gamePlayers.add(gamePlayer);
+        getGamePlayers().add(gamePlayer);
     }
 
     public List<Game> getGames() {
-        return gamePlayers.stream().map(GamePlayer::getGame).collect(toList());
+        return getGamePlayers().stream().map(GamePlayer::getGame).collect(toList());
+    }
+
+    public Set<Score> getScores() {
+        return scores;
+    }
+
+    public void setScores(Set<Score> scores) {
+        this.scores = scores;
+    }
+
+    public Score getScore(Game game) {
+        return getScores().stream().filter(s -> s.getGame().getId() == game.getId()).findFirst().orElse(null);
+    }
+
+    private Set<GamePlayer> getGamePlayers() {
+        return gamePlayers;
+    }
+
+    public void setGamePlayers(Set<GamePlayer> gamePlayers) {
+        this.gamePlayers = gamePlayers;
     }
 }
 

@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Salvo {
+class Salvo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -16,6 +16,7 @@ public class Salvo {
     private GamePlayer gamePlayer;
 
     private int turnNumber;
+
 
     @ElementCollection
     @Column(name = "location")
@@ -48,7 +49,7 @@ public class Salvo {
         return turnNumber;
     }
 
-    public void setTurnNumber(int turnNumber) {
+    private void setTurnNumber(int turnNumber) {
         this.turnNumber = turnNumber;
     }
 
@@ -56,7 +57,7 @@ public class Salvo {
         return locations;
     }
 
-    public void setLocations(List<String> locations) {
+    private void setLocations(List<String> locations) {
         this.locations = locations;
     }
 }

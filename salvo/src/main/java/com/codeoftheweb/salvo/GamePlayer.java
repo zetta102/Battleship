@@ -9,7 +9,7 @@ import java.util.Set;
 public class GamePlayer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private LocalDateTime gamePlayerDate;
 
@@ -77,11 +77,15 @@ public class GamePlayer {
         return gamePlayerDate;
     }
 
-    public void setGamePlayerDate(LocalDateTime gamePlayerDate) {
+    private void setGamePlayerDate(LocalDateTime gamePlayerDate) {
         this.gamePlayerDate = gamePlayerDate;
     }
 
     public Set<Salvo> getSalvoes() {
         return salvoes;
+    }
+
+    private Score getScore() {
+        return getScore();
     }
 }

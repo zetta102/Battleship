@@ -17,7 +17,7 @@ class SalvoApplication {
 	}
 
 	@Bean
-	public CommandLineRunner initData(PlayerRepository playerRepository, GameRepository gameRepository, GamePlayerRepository gamePlayerRepository) {
+	public CommandLineRunner initData(PlayerRepository playerRepository, GameRepository gameRepository, GamePlayerRepository gamePlayerRepository, ScoreRepository scoreRepository) {
 		return (args) -> {
 
 			LocalDateTime localDateTime = LocalDateTime.now();
@@ -33,6 +33,8 @@ class SalvoApplication {
 			playerRepository.save(player2);
 			playerRepository.save(player3);
 			playerRepository.save(player4);
+			playerRepository.save(player5);
+			playerRepository.save(player6);
 
 			Game game1 = new Game(LocalDateTime.now());
 			Game game2 = new Game(LocalDateTime.now().plusHours(1));
@@ -44,10 +46,11 @@ class SalvoApplication {
 
 			GamePlayer gamePlayer1 = new GamePlayer(player1, game1, localDateTime);
 			GamePlayer gamePlayer2 = new GamePlayer(player2, game1, localDateTime);
-			GamePlayer gamePlayer3 = new GamePlayer(player3, game2, localDateTime);
+			GamePlayer gamePlayer3 = new GamePlayer(player1, game2, localDateTime);
+			GamePlayer gamePlayer4 = new GamePlayer(player2, game2, localDateTime);
 
 			Ship ship1 = new Ship(ShipType.CARRIER, new ArrayList<>(Arrays.asList("a1","a2")));
-			Ship ship2 = new Ship(ShipType.PATROL_BOAT, new ArrayList<>(Arrays.asList("c2, b6")));
+			Ship ship2 = new Ship(ShipType.PATROL_BOAT, new ArrayList<>(Arrays.asList("c2", "b2")));
 			gamePlayer1.addShip(ship1);
 			gamePlayer2.addShip(ship2);
 
@@ -57,6 +60,16 @@ class SalvoApplication {
 			gamePlayerRepository.save(gamePlayer1);
 			gamePlayerRepository.save(gamePlayer2);
 			gamePlayerRepository.save(gamePlayer3);
+			gamePlayerRepository.save(gamePlayer4);
+
+			Score score1Game1 = new Score(1, localDateTime, game1, player1);
+			Score score2Game1 = new Score(0, localDateTime, game1, player2);
+			Score score1Game2 = new Score(0.5, localDateTime, game2, player1);
+			Score score2Game2 = new Score(0.5, localDateTime, game2, player2);
+			scoreRepository.save(score1Game1);
+			scoreRepository.save(score2Game1);
+			scoreRepository.save(score2Game2);
+			scoreRepository.save(score1Game2);
 		};
 	}
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,10 +14,17 @@ import static java.util.stream.Collectors.toList;
 public class Game {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
-    @OneToMany(mappedBy = "score", fetch = FetchType.EAGER)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private LocalDateTime creationDate;
+
+    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER)
+    private Set<GamePlayer> gamePlayers;
+
+
+    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER)
+    private Set<Score> scores = new HashSet<>();
 
     public Game() { }
 
@@ -24,9 +32,7 @@ public class Game {
         this.setCreationDate(creationDate);
     }
 
-    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER)
-    private
-    Set<GamePlayer> gamePlayers;
+
 
     public Set<GamePlayer> getGamePlayers() {
         return gamePlayers;
@@ -42,7 +48,7 @@ public class Game {
     }
 
     public Game(Set<GamePlayer> gamePlayers) {
-        this.gamePlayers = gamePlayers;
+        this.setGamePlayers(gamePlayers);
     }
 
     @JsonIgnore
@@ -64,5 +70,13 @@ public class Game {
 
     private void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public Set<Score> getScores() {
+        return scores;
+    }
+
+    public void setScores(Set<Score> scores) {
+        this.scores = scores;
     }
 }

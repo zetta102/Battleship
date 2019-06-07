@@ -10,7 +10,7 @@ import java.util.List;
 class Ship {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -26,8 +26,8 @@ class Ship {
     public Ship (){}
 
     public Ship(ShipType shipType, List<String> shipLocation) {
-        this.locations = shipLocation;
-        this.shipType = shipType;
+        this.setLocations(shipLocation);
+        this.setShipType(shipType);
     }
 
     public  List<String> getLocations() {
@@ -35,7 +35,7 @@ class Ship {
     }
 
     public  void setList(List<String> locations) {
-        this.locations = locations;
+        this.setLocations(locations);
     }
 
     public long getId() {
@@ -60,5 +60,9 @@ class Ship {
 
     public void setGamePlayer(GamePlayer gamePlayer) {
         this.gamePlayer = gamePlayer;
+    }
+
+    public void setLocations(List<String> locations) {
+        this.locations = locations;
     }
 }
