@@ -1,9 +1,10 @@
 package com.codeoftheweb.salvo;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -22,6 +23,26 @@ class SalvoController {
 
     @Autowired
     private GamePlayerRepository gamePlayerRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @RequestMapping(path = "/players", method = RequestMethod.POST)
+    public ResponseEntity<Object> register(
+            @RequestParam String first, @RequestParam String last,
+            @RequestParam String email, @RequestParam String password, @RequestParam String username) {
+
+        if (first.isEmpty() || last.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            return new ResponseEntity<>("Missing data", HttpStatus.FORBIDDEN);
+        }
+
+        if (playerRepository.findByUserName(email) != null) {
+            return new ResponseEntity<>("Name already in use", HttpStatus.FORBIDDEN);
+        }
+
+        playerRepository.save(new Player(first, last, email, passwordEncoder.encode(password), username));
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
 
     @RequestMapping("/game_view/{nn}")
     public Map <String, Object> findOwner(@PathVariable Long nn) {
@@ -52,7 +73,6 @@ class SalvoController {
         dto.put("gamePlayers", gamePlayer.getGame().getGamePlayers().stream().map(this::gamePlayersDTO).collect(Collectors.toList()));
         dto.put("ships", gamePlayer.getShips().stream().map(this::ShipDTO));
         dto.put("salvos", gamePlayer.getGame().getGamePlayers().stream().flatMap(sgp -> sgp.getSalvoes().stream().map(this::salvoDTO)));
-        dto.put("players", gamePlayer.getGame().getGamePlayers().stream().map(this::gameStatsDTO).collect(Collectors.toList()));
         return dto;
     }
 
