@@ -14,13 +14,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,12 +48,12 @@ class SalvoApplication extends SpringBootServletInitializer {
 
 			LocalDateTime localDateTime = LocalDateTime.now();
 
-			Player player1 = new Player("Jack", "Bauer", "j.bauer@ctu.gov", "24", "j.bauer");
-			Player player2 = new Player("Chloe", "O'Brian", "c.obrian@ctu.gov", "42", "c.obrian");
-			Player player3 = new Player("Kim", "Bauer", "kim_bauer@gmail.com", "kb", "kim_bauer");
-			Player player4 = new Player("Tony", "Almeida", "t.almeida@ctu.gov", "mole", "t-almeida");
-			Player player5 = new Player("José", "Sierra", "heiligpfeil@gmail.com", "sankt", "heiligpfeil");
-			Player player6 = new Player("Rodrigo", "García", "rodrigogarcíaribeiro@gmail.com", "capfullstack", "capfullstack");
+            Player player1 = new Player("Jack", "Bauer", "j.bauer@ctu.gov", passwordEncoder().encode("24"), "j.bauer");
+            Player player2 = new Player("Chloe", "O'Brian", "c.obrian@ctu.gov", passwordEncoder().encode("42"), "c.obrian");
+            Player player3 = new Player("Kim", "Bauer", "kim_bauer@gmail.com", passwordEncoder().encode("kb"), "kim_bauer");
+            Player player4 = new Player("Tony", "Almeida", "t.almeida@ctu.gov", passwordEncoder().encode("mole"), "t-almeida");
+            Player player5 = new Player("José", "Sierra", "heiligpfeil@gmail.com", passwordEncoder().encode("sankt"), "heiligpfeil");
+            Player player6 = new Player("Rodrigo", "García", "rodrigogarcíaribeiro@gmail.com", passwordEncoder().encode("capfullstack"), "capfullstack");
 
 			playerRepository.save(player1);
 			playerRepository.save(player2);
@@ -103,30 +105,38 @@ class SalvoApplication extends SpringBootServletInitializer {
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http
-				.authorizeRequests()
-				.antMatchers("/api/**").permitAll()
-				.anyRequest().authenticated()
-				.and()
-				.formLogin()
-				.loginPage("/login")
-				.permitAll()
-				.and()
-				.logout()
-				.permitAll();
-	}
+        http.authorizeRequests()
+                .antMatchers("/rest/**").hasAnyAuthority("ADMIN")
+                .antMatchers("/api/game_view/**").hasAnyAuthority("USER", "ADMIN");
 
-	@Bean
-	@Override
-	public UserDetailsService userDetailsService() {
-		UserDetails user =
-				User.withDefaultPasswordEncoder()
-						.username("user")
-						.password("password")
-						.roles("USER")
-						.build();
+        http.formLogin()
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .loginPage("/api/login");
 
-		return new InMemoryUserDetailsManager(user);
+        http.logout().logoutUrl("/api/logout");
+
+        // turn off checking for CSRF tokens
+        http.csrf().disable();
+
+        // if user is not authenticated, just send an authentication failure response
+        http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+
+        // if login is successful, just clear the flags asking for authentication
+        http.formLogin().successHandler((req, res, auth) -> clearAuthenticationAttributes(req));
+
+        // if login fails, just send an authentication failure response
+        http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+
+        // if logout is successful, just send a success response
+        http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
+    }
+
+    private void clearAuthenticationAttributes(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+        }
 	}
 }
 
@@ -136,16 +146,25 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 	@Autowired
 	PlayerRepository playerRepository;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
 	@Override
 	public void init(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(inputName -> {
 			Player player = playerRepository.findByUserName(inputName);
 			if (player != null) {
-				return new User(player.getUserName(), player.getPassword(),
-						AuthorityUtils.createAuthorityList("USER"));
+                if (player.getUserName().equals("rodrigogarcíaribeiro")) {
+                    return new User(player.getUserName(), player.getPassword(),
+                            AuthorityUtils.createAuthorityList("ADMIN"));
+                } else {
+                    return new User(player.getUserName(), player.getPassword(),
+                            AuthorityUtils.createAuthorityList("USER"));
+                }
 			} else {
 				throw new UsernameNotFoundException("Unknown user: " + inputName);
 			}
-		});
+        }).passwordEncoder(passwordEncoder);
 	}
 }
+

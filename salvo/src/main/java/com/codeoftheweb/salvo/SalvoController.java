@@ -3,6 +3,8 @@ package com.codeoftheweb.salvo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +46,13 @@ class SalvoController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+
+    private Map<String, Object> makeMap(String key, Object value) {
+        Map<String, Object> map = new HashMap<>();
+        map.put(key, value);
+        return map;
+    }
+
     @RequestMapping("/game_view/{nn}")
     public Map <String, Object> findOwner(@PathVariable Long nn) {
         Map <String, Object> map = new HashMap<>();
@@ -59,11 +68,20 @@ class SalvoController {
     }
 
     @RequestMapping("/games")
-    public Map<String, Object> getGames() {
+    public Map<String, Object> getGames(Authentication authentication) {
         Map<String, Object> dto = new LinkedHashMap<>();
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            dto.put("player", "guest");
+        } else {
+            dto.put("player", this.playersDTO(playerRepository.findByUserName(authentication.getName())));
+        }
         dto.put("games", gameRepository.findAll().stream().map(this::gamesDTO).collect(Collectors.toList()));
-        dto.put("stats", playerRepository.findAll().stream().map(this::playerStatisticsDTO).collect((Collectors.toList())));
+        dto.put("stats", playerRepository.findAll().stream().map(this::playerStatisticsDTO).collect(Collectors.toList()));
         return dto;
+    }
+
+    private boolean isGuest(Authentication authentication) {
+        return authentication == null || authentication instanceof AnonymousAuthenticationToken;
     }
 
     private Map<String, Object> game_viewDTO(GamePlayer gamePlayer) {
@@ -80,12 +98,6 @@ class SalvoController {
         Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("turnNumber", salvo.getTurnNumber());
         dto.put("location", salvo.getLocations());
-        return dto;
-    }
-
-    private Map<String, Object> gameStatsDTO(GamePlayer gamePlayer) {
-        Map<String, Object> dto = new LinkedHashMap<>();
-        dto.put("gamePlayers", gamePlayer.getGame().getGamePlayers().stream().map(this::gamePlayersDTO).collect(Collectors.toList()));
         return dto;
     }
 
