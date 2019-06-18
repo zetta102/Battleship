@@ -21,20 +21,15 @@ public class Player {
     private
     Set<GamePlayer> gamePlayers;
 
-    private String firstName;
-    private String lastName;
+
     private String eMail;
     private String password;
-    private String userName;
 
     public Player() {}
 
-    public Player(String first, String last, String mail, String pass, String user) {
-        setFirstName(first);
-        setLastName(last);
+    public Player(String mail, String pass) {
         seteMail(mail);
         setPassword(pass);
-        setUserName(user);
     }
 
     public long getId() {
@@ -43,22 +38,6 @@ public class Player {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    private void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    private void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String geteMail() {
@@ -75,14 +54,6 @@ public class Player {
 
     private void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    private void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public void addGamePlayer(GamePlayer gamePlayer) {

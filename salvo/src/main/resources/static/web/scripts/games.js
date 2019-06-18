@@ -32,11 +32,21 @@ var app = new Vue({
                              evt.preventDefault(evt);
                              var form = evt.target.form;
                              $.post("/api/login",
-                                    { username: form["username"].value,
-                                      password: form["password"].value });
+                                    {
+                                                                                       email: form["email"].value,
+                                                                                       password: form["password"].value  });
                            }
 
             function logout(evt) {
                              evt.preventDefault();
                              $.post("/api/logout");
                            }
+
+            function signin(evt) {
+           evt.preventDefault(evt);
+           var form = evt.target.form;
+                                        $.post("/api/players",
+                                               {
+                                                 email: form["email"].value,
+                                                 password: form["password"].value });
+                                                 }

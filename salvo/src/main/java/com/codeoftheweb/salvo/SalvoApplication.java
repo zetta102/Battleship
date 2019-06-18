@@ -48,12 +48,12 @@ class SalvoApplication extends SpringBootServletInitializer {
 
 			LocalDateTime localDateTime = LocalDateTime.now();
 
-            Player player1 = new Player("Jack", "Bauer", "j.bauer@ctu.gov", passwordEncoder().encode("24"), "j.bauer");
-            Player player2 = new Player("Chloe", "O'Brian", "c.obrian@ctu.gov", passwordEncoder().encode("42"), "c.obrian");
-            Player player3 = new Player("Kim", "Bauer", "kim_bauer@gmail.com", passwordEncoder().encode("kb"), "kim_bauer");
-            Player player4 = new Player("Tony", "Almeida", "t.almeida@ctu.gov", passwordEncoder().encode("mole"), "t-almeida");
-            Player player5 = new Player("José", "Sierra", "heiligpfeil@gmail.com", passwordEncoder().encode("sankt"), "heiligpfeil");
-            Player player6 = new Player("Rodrigo", "García", "rodrigogarcíaribeiro@gmail.com", passwordEncoder().encode("capfullstack"), "capfullstack");
+			Player player1 = new Player("j.bauer@ctu.gov", passwordEncoder().encode("24"));
+			Player player2 = new Player("c.obrian@ctu.gov", passwordEncoder().encode("42"));
+			Player player3 = new Player("kim_bauer@gmail.com", passwordEncoder().encode("kb"));
+			Player player4 = new Player("t.almeida@ctu.gov", passwordEncoder().encode("mole"));
+			Player player5 = new Player("heiligpfeil@gmail.com", passwordEncoder().encode("sankt"));
+			Player player6 = new Player("rodrigogarcíaribeiro@gmail.com", passwordEncoder().encode("capfullstack"));
 
 			playerRepository.save(player1);
 			playerRepository.save(player2);
@@ -110,7 +110,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/game_view/**").hasAnyAuthority("USER", "ADMIN");
 
         http.formLogin()
-                .usernameParameter("username")
+				.usernameParameter("email")
                 .passwordParameter("password")
                 .loginPage("/api/login");
 
@@ -151,18 +151,18 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 
 	@Override
 	public void init(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(inputName -> {
-			Player player = playerRepository.findByUserName(inputName);
+		auth.userDetailsService(inputEmail -> {
+			Player player = playerRepository.findByeMail(inputEmail);
 			if (player != null) {
-                if (player.getUserName().equals("rodrigogarcíaribeiro")) {
-                    return new User(player.getUserName(), player.getPassword(),
+				if (player.geteMail().equals("jsierra669@gmail.com")) {
+					return new User(player.geteMail(), player.getPassword(),
                             AuthorityUtils.createAuthorityList("ADMIN"));
                 } else {
-                    return new User(player.getUserName(), player.getPassword(),
+					return new User(player.geteMail(), player.getPassword(),
                             AuthorityUtils.createAuthorityList("USER"));
                 }
 			} else {
-				throw new UsernameNotFoundException("Unknown user: " + inputName);
+				throw new UsernameNotFoundException("Unknown user: " + inputEmail);
 			}
         }).passwordEncoder(passwordEncoder);
 	}

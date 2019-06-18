@@ -31,18 +31,17 @@ class SalvoController {
 
     @RequestMapping(path = "/players", method = RequestMethod.POST)
     public ResponseEntity<Object> register(
-            @RequestParam String first, @RequestParam String last,
-            @RequestParam String email, @RequestParam String password, @RequestParam String username) {
+            @RequestParam String email, @RequestParam String password) {
 
-        if (first.isEmpty() || last.isEmpty() || email.isEmpty() || password.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty()) {
             return new ResponseEntity<>("Missing data", HttpStatus.FORBIDDEN);
         }
 
-        if (playerRepository.findByUserName(email) != null) {
+        if (playerRepository.findByeMail(email) != null) {
             return new ResponseEntity<>("Name already in use", HttpStatus.FORBIDDEN);
         }
 
-        playerRepository.save(new Player(first, last, email, passwordEncoder.encode(password), username));
+        playerRepository.save(new Player(email, passwordEncoder.encode(password)));
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -73,7 +72,7 @@ class SalvoController {
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
             dto.put("player", "guest");
         } else {
-            dto.put("player", this.playersDTO(playerRepository.findByUserName(authentication.getName())));
+            dto.put("player", this.playersDTO(playerRepository.findByeMail(authentication.getName())));
         }
         dto.put("games", gameRepository.findAll().stream().map(this::gamesDTO).collect(Collectors.toList()));
         dto.put("stats", playerRepository.findAll().stream().map(this::playerStatisticsDTO).collect(Collectors.toList()));
@@ -137,7 +136,7 @@ class SalvoController {
     public Map<String, Object> playerStatisticsDTO(Player player) {
         Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("id", player.getId());
-        dto.put("email", player.getUserName());
+        dto.put("email", player.geteMail());
         double total = player.getScores().stream().mapToDouble(Score::getScore).sum();
         double won = player.getScores().stream().filter(score -> score.getScore() == 1).count();
         double lost = player.getScores().stream().filter(score -> score.getScore() == 0).count();

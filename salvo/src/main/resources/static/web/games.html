@@ -23,20 +23,14 @@
 
     <form id="login-form" onsubmit="return false" v-if="player == 'guest'">
         <h2>Login</h2>
-        <label>Name: <input type="text" name="username"></label>
+        <label>Email: <input type="text" name="email"></label>
         <label>Password: <input type="text" name="password"></label>
         <button id="login-button" onclick="login(event)">Log in</button>
+        <button id="signin-button" onclick="signin(event)">Sign in</button>
     </form>
 
     <form id="logout-form" onsubmit="return false" v-if="player != 'guest'">
         <button id="logout-button" onclick="logout(event)">Log out</button>
-    </form>
-
-    <form id="signin-form" onsubmit="return false" v-if="player == 'guest'">
-        <h2>Sign-in</h2>
-        <label>Name: <input type="text" name="username"></label>
-        <label>Password: <input type="text" name="password"></label>
-        <button id="signin-button" onclick="signin(event)">Sign in</button>
     </form>
 
     <ol >
