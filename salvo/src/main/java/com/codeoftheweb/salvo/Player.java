@@ -21,7 +21,6 @@ public class Player {
     private
     Set<GamePlayer> gamePlayers;
 
-
     private String eMail;
     private String password;
 

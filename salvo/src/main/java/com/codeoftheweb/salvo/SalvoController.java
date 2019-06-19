@@ -46,24 +46,29 @@ class SalvoController {
     }
 
 
-    private Map<String, Object> makeMap(String key, Object value) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(key, value);
-        return map;
-    }
 
     @RequestMapping("/game_view/{nn}")
-    public Map <String, Object> findOwner(@PathVariable Long nn) {
-        Map <String, Object> map = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> findOwner(@RequestParam @PathVariable Long nn, Authentication authentication) {
+        ResponseEntity<Map<String, Object>> responseEntity;
         Optional<GamePlayer> optionalGamePlayer = gamePlayerRepository.findById(nn);
         if(optionalGamePlayer.isPresent()) {
             GamePlayer gamePlayer = optionalGamePlayer.get();
-            map = this.game_viewDTO(gamePlayer);
+            if (isGuest(authentication)) {
+                responseEntity = new ResponseEntity<>(makeMap("error", "unauthorized"), HttpStatus.UNAUTHORIZED);
+            } else {
+                Player player = playerRepository.findByeMail(authentication.getName());
+
+                if (gamePlayer.getPlayer().getId() == player.getId()) {
+                    responseEntity = new ResponseEntity<>(this.game_viewDTO(gamePlayer), HttpStatus.OK);
+                } else {
+                    responseEntity = new ResponseEntity<>(makeMap("error", "not logged"), HttpStatus.FORBIDDEN);
+                }
+            }
         }
         else {
-            map.put("error", "no se encuentra el player");
+            return new ResponseEntity<>(makeMap("error", "that player does not exist"), HttpStatus.BAD_REQUEST);
         }
-        return map;
+        return responseEntity;
     }
 
     @RequestMapping("/games")
@@ -77,6 +82,11 @@ class SalvoController {
         dto.put("games", gameRepository.findAll().stream().map(this::gamesDTO).collect(Collectors.toList()));
         dto.put("stats", playerRepository.findAll().stream().map(this::playerStatisticsDTO).collect(Collectors.toList()));
         return dto;
+    }
+
+    @RequestMapping(value = "/games", method = RequestMethod.POST)
+    private Map<String, Object> createGame(Authentication authentication) {
+        Player currentUser = playerRepository.findByeMail(authentication.getName());
     }
 
     private boolean isGuest(Authentication authentication) {
@@ -146,5 +156,11 @@ class SalvoController {
         dto.put("lost", lost);
         dto.put("tied", tied);
         return dto;
+    }
+
+    private Map<String, Object> makeMap(String key, Object value) {
+        Map<String, Object> map = new HashMap<>();
+        map.put(key, value);
+        return map;
     }
 }

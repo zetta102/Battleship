@@ -34,9 +34,10 @@
     </form>
 
     <ol >
-    <li v-for="game in games.games">Game #: {{game.id}} Creation Date: {{game.created}}:
+        <li v-for="game in games.games">Game #{{game.game_id}} Creation Date: {{game.created}}:
     <ul>
-        <li v-for= "gamePlayer in game.gamePlayers">{{gamePlayer.player.email}}</li>
+        <li v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}} <a
+                :href="'game.html?gp=' + gamePlayer.gamePlayer_id"> Join </a></li>
     </ul>
 </li>
 </ol>
