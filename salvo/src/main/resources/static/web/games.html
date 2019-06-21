@@ -33,6 +33,8 @@
         <button id="logout-button" onclick="logout(event)">Log out</button>
     </form>
 
+    <button id="creategame-button" v-if="player != 'guest'" onclick="creategame(event)">Create Game</button>
+
     <ol >
         <li v-for="game in games.games">Game #{{game.game_id}} Creation Date: {{game.created}}:
     <ul>

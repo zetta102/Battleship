@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,7 +49,7 @@ class SalvoController {
 
 
     @RequestMapping("/game_view/{nn}")
-    public ResponseEntity<Map<String, Object>> findOwner(@RequestParam @PathVariable Long nn, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> findOwner(@PathVariable Long nn, Authentication authentication) {
         ResponseEntity<Map<String, Object>> responseEntity;
         Optional<GamePlayer> optionalGamePlayer = gamePlayerRepository.findById(nn);
         if(optionalGamePlayer.isPresent()) {
@@ -61,7 +62,7 @@ class SalvoController {
                 if (gamePlayer.getPlayer().getId() == player.getId()) {
                     responseEntity = new ResponseEntity<>(this.game_viewDTO(gamePlayer), HttpStatus.OK);
                 } else {
-                    responseEntity = new ResponseEntity<>(makeMap("error", "not logged"), HttpStatus.FORBIDDEN);
+                    responseEntity = new ResponseEntity<>(makeMap("error", "not logged in"), HttpStatus.FORBIDDEN);
                 }
             }
         }
@@ -85,8 +86,18 @@ class SalvoController {
     }
 
     @RequestMapping(value = "/games", method = RequestMethod.POST)
-    private Map<String, Object> createGame(Authentication authentication) {
-        Player currentUser = playerRepository.findByeMail(authentication.getName());
+    private ResponseEntity<Map<String, Object>> createGames(Authentication authentication) {
+        ResponseEntity<Map<String, Object>> responseEntity;
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            responseEntity = new ResponseEntity<>(makeMap("error", "not logged in"), HttpStatus.FORBIDDEN);
+        } else {
+            Player player = playerRepository.findByeMail(authentication.getName());
+            Game game = gameRepository.save(new Game(LocalDateTime.now()));
+            GamePlayer gamePlayer = new GamePlayer(player, game, LocalDateTime.now());
+            gamePlayerRepository.save(gamePlayer);
+            responseEntity = new ResponseEntity<>(makeMap("gamePlayer_id", gamePlayer.getId()), HttpStatus.CREATED);
+        }
+        return responseEntity;
     }
 
     private boolean isGuest(Authentication authentication) {

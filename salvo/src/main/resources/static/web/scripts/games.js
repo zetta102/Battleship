@@ -50,3 +50,13 @@ var app = new Vue({
                                                  email: form["email"].value,
                                                  password: form["password"].value });
                                                  }
+
+            function creategame(evt) {
+            evt.preventDefault(evt);
+            $.post("/api/games")
+            .done(function(response){
+            window.location.href = "game.html?gp=" + response.gamePlayer_id
+            }).failed(function(response){
+            alert(response.statusText)
+            })
+            }
