@@ -72,6 +72,31 @@ class SalvoController {
         return responseEntity;
     }
 
+    @RequestMapping(value = "/games/{nn}/players", method = RequestMethod.POST)
+    private ResponseEntity<Map<String, Object>> joinGames(Authentication authentication, @PathVariable long nn) {
+        ResponseEntity<Map<String, Object>> responseEntity;
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            responseEntity = new ResponseEntity<>(makeMap("error", "not logged in"), HttpStatus.UNAUTHORIZED);
+        } else {
+            Game gameId = gameRepository.findById(nn).orElse(null);
+            if (gameId.getId() != nn) {
+                responseEntity = new ResponseEntity<>(makeMap("error", "that game does not exist"), HttpStatus.FORBIDDEN);
+            } else {
+                if (gameId.getPlayers().size() != 1) {
+                    responseEntity = new ResponseEntity<>(makeMap("error", "the game is full"), HttpStatus.FORBIDDEN);
+                } else {
+                    Player player = playerRepository.findByeMail(authentication.getName());
+                    Game game = gameRepository.save(new Game(LocalDateTime.now()));
+                    GamePlayer gamePlayer = new GamePlayer(player, game, LocalDateTime.now());
+                    gamePlayerRepository.save(gamePlayer);
+                    responseEntity = new ResponseEntity<>(makeMap("gamePlayer_id", gamePlayer.getId()), HttpStatus.CREATED);
+                }
+            }
+
+        }
+        return responseEntity;
+    }
+
     @RequestMapping("/games")
     public Map<String, Object> getGames(Authentication authentication) {
         Map<String, Object> dto = new LinkedHashMap<>();

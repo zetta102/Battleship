@@ -39,7 +39,8 @@
         <li v-for="game in games.games">Game #{{game.game_id}} Creation Date: {{game.created}}:
     <ul>
         <li v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}} <a
-                :href="'game.html?gp=' + gamePlayer.gamePlayer_id"> Join </a></li>
+                :href="'game.html?gp=' + gamePlayer.gamePlayer_id" :data-id="gamePlayer.gamePlayer_id"
+                v-on:click="el.joingame(event)"> Join </a></li>
     </ul>
 </li>
 </ol>
