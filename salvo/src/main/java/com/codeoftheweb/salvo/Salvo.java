@@ -27,7 +27,8 @@ class Salvo {
         setLocations(salvoLocation);
     }
 
-    public Salvo() { }
+    public Salvo() {
+    }
 
     public long getId() {
         return id;

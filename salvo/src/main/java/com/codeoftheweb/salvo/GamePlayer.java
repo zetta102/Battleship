@@ -29,7 +29,8 @@ public class GamePlayer {
     private final
     Set<Salvo> salvoes = new HashSet<>();
 
-    public GamePlayer() { }
+    public GamePlayer() {
+    }
 
     public GamePlayer(Player player, Game game, LocalDateTime gamePlayerDate) {
         this.setPlayer(player);
@@ -37,14 +38,16 @@ public class GamePlayer {
         this.setGamePlayerDate(gamePlayerDate);
     }
 
-    public Set<Ship> getShips() {return ships;}
-
-    public void addSalvo(Salvo salvo){
-      salvo.setGamePlayer(this);
-      getSalvoes().add(salvo);
+    public Set<Ship> getShips() {
+        return ships;
     }
 
-    public void addShip(Ship ship){
+    public void addSalvo(Salvo salvo) {
+        salvo.setGamePlayer(this);
+        getSalvoes().add(salvo);
+    }
+
+    public void addShip(Ship ship) {
         ship.setGamePlayer(this);
         getShips().add(ship);
     }

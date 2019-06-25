@@ -75,12 +75,12 @@ class SalvoApplication extends SpringBootServletInitializer {
 			GamePlayer gamePlayer3 = new GamePlayer(player1, game2, localDateTime);
 			GamePlayer gamePlayer4 = new GamePlayer(player2, game2, localDateTime);
 
-			Ship ship1 = new Ship(ShipType.CARRIER, new ArrayList<>(Arrays.asList("a1","a2")));
-			Ship ship2 = new Ship(ShipType.PATROL_BOAT, new ArrayList<>(Arrays.asList("c2", "b2")));
+            Ship ship1 = new Ship(ShipType.CARRIER, new ArrayList<>(Arrays.asList("a1", "a2")));
+            Ship ship2 = new Ship(ShipType.PATROL_BOAT, new ArrayList<>(Arrays.asList("c2", "b2")));
 			gamePlayer1.addShip(ship1);
 			gamePlayer2.addShip(ship2);
 
-			Salvo salvo1 = new Salvo(1, new ArrayList<>(Arrays.asList("b1","c1")));
+            Salvo salvo1 = new Salvo(1, new ArrayList<>(Arrays.asList("b1", "c1")));
 			gamePlayer1.addSalvo(salvo1);
 
 			gamePlayerRepository.save(gamePlayer1);
@@ -167,4 +167,3 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
         }).passwordEncoder(passwordEncoder);
 	}
 }
-

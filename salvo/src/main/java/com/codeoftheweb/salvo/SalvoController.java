@@ -9,10 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -46,13 +43,38 @@ class SalvoController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-
+    @RequestMapping(value = "/games/players/{gpId}/ships", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> placedShips(@PathVariable Long gpId, @RequestBody List<Ship> ships, Authentication authentication) {
+        ResponseEntity<Map<String, Object>> responseEntity;
+        Player player = playerRepository.findByeMail(authentication.getName());
+        GamePlayer gamePlayer = gamePlayerRepository.findById(gpId).orElse(null);
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            responseEntity = new ResponseEntity<>(makeMap("error", "not logged in"), HttpStatus.UNAUTHORIZED);
+        } else {
+            if (gamePlayer == null) {
+                responseEntity = new ResponseEntity<>(makeMap("error", "that game does not exist"), HttpStatus.NOT_FOUND);
+            } else {
+                if (player.getId() != gamePlayer.getPlayer().getId()) {
+                    responseEntity = new ResponseEntity<>(makeMap("error", "that player is not participating in that game"), HttpStatus.NOT_FOUND);
+                } else {
+                    if (ships.size() != 5) {
+                        responseEntity = new ResponseEntity<>(makeMap("error", "you have already placed your ships"), HttpStatus.FORBIDDEN);
+                    } else {
+                        ships.stream().forEach(ship -> gamePlayer.addShip(ship));
+                        gamePlayerRepository.save(gamePlayer);
+                        responseEntity = new ResponseEntity<>(makeMap("success", "the ships have been placed"), HttpStatus.CREATED);
+                    }
+                }
+            }
+        }
+        return responseEntity;
+    }
 
     @RequestMapping("/game_view/{nn}")
     public ResponseEntity<Map<String, Object>> findOwner(@PathVariable Long nn, Authentication authentication) {
         ResponseEntity<Map<String, Object>> responseEntity;
         Optional<GamePlayer> optionalGamePlayer = gamePlayerRepository.findById(nn);
-        if(optionalGamePlayer.isPresent()) {
+        if (optionalGamePlayer.isPresent()) {
             GamePlayer gamePlayer = optionalGamePlayer.get();
             if (isGuest(authentication)) {
                 responseEntity = new ResponseEntity<>(makeMap("error", "unauthorized"), HttpStatus.UNAUTHORIZED);
@@ -65,8 +87,7 @@ class SalvoController {
                     responseEntity = new ResponseEntity<>(makeMap("error", "not logged in"), HttpStatus.FORBIDDEN);
                 }
             }
-        }
-        else {
+        } else {
             return new ResponseEntity<>(makeMap("error", "that player does not exist"), HttpStatus.BAD_REQUEST);
         }
         return responseEntity;
@@ -154,8 +175,8 @@ class SalvoController {
         return dto;
     }
 
-    private Map<String, Object> gamePlayersDTO(GamePlayer gamePlayer){
-        Map<String,Object> dto = new LinkedHashMap<>();
+    private Map<String, Object> gamePlayersDTO(GamePlayer gamePlayer) {
+        Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("gamePlayer_id", gamePlayer.getId());
         dto.put("player", this.playersDTO(gamePlayer.getPlayer()));
         if (gamePlayer.getPlayer().getScore(gamePlayer.getGame()) != null)
@@ -165,10 +186,10 @@ class SalvoController {
         return dto;
     }
 
-    private Map<String, Object> playersDTO(Player player){
+    private Map<String, Object> playersDTO(Player player) {
         Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("player_id", player.getId());
-        dto.put("email",player.geteMail());
+        dto.put("email", player.geteMail());
         return dto;
     }
 
