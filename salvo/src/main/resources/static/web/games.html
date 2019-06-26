@@ -4,68 +4,69 @@
     <meta charset="UTF-8">
     <meta name="description" content="Game test webstite">
     <meta name="author" content="Jose Sierra">
-    <meta name="keywords" content="New York Soccer League, New York, Soccer League, League">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Firebase Database Quickstart">
-    <meta name="theme-color" content="#303F9F">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Firebase Database Quickstart">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#303F9F">
-    <meta name="msapplication-TileColor" content="#3372DF">
-    <meta name="msapplication-navbutton-color" content="#303F9F">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <title>Games | Home</title>
 </head>
+
 <body>
-<div id="game">
-<h1>Salvo!</h1>
+<div id="game" class="container-fluid">
+    <h1>Salvo!</h1>
+    <div class="row">
+        <form id="login-form" onsubmit="return false" v-if="player == 'guest'">
+            <h2>Login</h2>
+            <label>Email: <input required placeholder="Email" autocomplete="email" type="email" name="email"></label>
+            <label>Password: <input required placeholder="Password" autocomplete="password" type="password"
+                                    name="password"></label>
+            <button id="login-button" onclick="login(event)">Log in</button>
+            <button id="signin-button" onclick="signin(event)">Sign in</button>
+        </form>
 
-    <form id="login-form" onsubmit="return false" v-if="player == 'guest'">
-        <h2>Login</h2>
-        <label>Email: <input type="text" name="email"></label>
-        <label>Password: <input type="text" name="password"></label>
-        <button id="login-button" onclick="login(event)">Log in</button>
-        <button id="signin-button" onclick="signin(event)">Sign in</button>
-    </form>
-
-    <form id="logout-form" onsubmit="return false" v-if="player != 'guest'">
-        <button id="logout-button" onclick="logout(event)">Log out</button>
-    </form>
-
-    <button id="creategame-button" v-if="player != 'guest'" onclick="creategame(event)">Create Game</button>
-
-    <ol >
-        <li v-for="game in games.games">Game #{{game.game_id}} Creation Date: {{game.created}}:
-    <ul>
-        <li v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}} <a
-                :href="'game.html?gp=' + gamePlayer.gamePlayer_id" :data-id="gamePlayer.gamePlayer_id"
-                v-on:click="el.joingame(event)"> Join </a></li>
-    </ul>
-</li>
-</ol>
-    <table class="table-bordered table table-condensed table-hover">
-        <tr>
-            <th>Name</th>
-            <th>Won</th>
-            <th>Lost</th>
-            <th>Tied</th>
-            <th>Total</th>
-        </tr>
-        <tr v-for="game in stats">
-            <td>{{game.email}}</td>
-            <td>{{game.won}}</td>
-            <td>{{game.lost}}</td>
-            <td>{{game.tied}}</td>
-            <td>{{game.score}}</td>
-        </tr>
-    </table>
+        <form id="logout-form" onsubmit="return false" v-if="player != 'guest'">
+            <button id="logout-button" onclick="logout(event)">Log out</button>
+        </form>
+        <form>
+            <button id="creategame-button" v-if="player != 'guest'" onclick="creategame(event)">Create Game</button>
+        </form>
+    </div>
+    <div class="row">
+        <ol>
+            <li v-for="game in games.games">Game #{{game.game_id}} Creation Date: {{game.created}} <a
+                    v-if="game.gamePlayers.length == 1"> Join </a>
+                <ul>
+                    <li v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}} <a
+                            :href="'game.html?gp=' + gamePlayer.gamePlayer_id" :data-id="gamePlayer.gamePlayer_id"
+                            v-on:click="el.joingame(event)" v-if="player.email == gamePlayer.player.email"> Enter </a>
+                    </li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+    <div class="row">
+        <table class="table-bordered table table-condensed table-hover">
+            <tr>
+                <th>Name</th>
+                <th>Won</th>
+                <th>Lost</th>
+                <th>Tied</th>
+                <th>Total</th>
+            </tr>
+            <tr v-for="game in stats">
+                <td>{{game.email}}</td>
+                <td>{{game.won}}</td>
+                <td>{{game.lost}}</td>
+                <td>{{game.tied}}</td>
+                <td>{{game.score}}</td>
+            </tr>
+        </table>
+    </div>
 
 </div>
-<script
-        src="https://code.jquery.com/jquery-3.4.1.min.js"
-        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 <script src="scripts/games.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>

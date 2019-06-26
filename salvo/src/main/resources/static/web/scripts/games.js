@@ -73,20 +73,3 @@ function joingame(evt) {
 	alert(response.statusText)
 })
 }
-
-function postships(evt) {
-$.post({
-  url: "/games/players/{gamePlayerId}/ships.",
-  data: JSON.stringify({ name: petName, type: petType, age: petAge }),
-  dataType: "text",
-  contentType: "application/json"
-})
-.done(function (response, status, jqXHR) {
-  alert( "Pet added: " + response );
-})
-.fail(function (jqXHR, status, httpError) {
-  alert("Failed to add pet: " + textStatus + " " + httpError);
-})
-}
-
-//bigboi

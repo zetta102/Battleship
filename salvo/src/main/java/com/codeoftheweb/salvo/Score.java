@@ -60,10 +60,6 @@ public class Score {
         return score;
     }
 
-    public void setScore(float score) {
-        this.score = score;
-    }
-
     public void setScore(double score) {
         this.score = score;
     }

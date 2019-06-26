@@ -58,7 +58,7 @@ class SalvoController {
                     responseEntity = new ResponseEntity<>(makeMap("error", "that player is not participating in that game"), HttpStatus.NOT_FOUND);
                 } else {
                     if (ships.size() != 5) {
-                        responseEntity = new ResponseEntity<>(makeMap("error", "you have already placed your ships"), HttpStatus.FORBIDDEN);
+                        responseEntity = new ResponseEntity<>(makeMap("error", "you need 5 ships to play"), HttpStatus.FORBIDDEN);
                     } else {
                         ships.stream().forEach(ship -> gamePlayer.addShip(ship));
                         gamePlayerRepository.save(gamePlayer);
