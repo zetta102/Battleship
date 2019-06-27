@@ -8,26 +8,22 @@ import java.util.Set;
 @Entity
 public class GamePlayer {
 
+    @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private final
+    Set<Ship> ships = new HashSet<>();
+    @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private final
+    Set<Salvo> salvoes = new HashSet<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private LocalDateTime gamePlayerDate;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "player")
     private Player player;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "game")
     private Game game;
-
-    @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private final
-    Set<Ship> ships = new HashSet<>();
-
-    @OneToMany(mappedBy = "gamePlayer", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private final
-    Set<Salvo> salvoes = new HashSet<>();
 
     public GamePlayer() {
     }

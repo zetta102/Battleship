@@ -41,13 +41,13 @@ public class Game {
         return gamePlayers;
     }
 
+    public void setGamePlayers(Set<GamePlayer> gamePlayers) {
+        this.gamePlayers = gamePlayers;
+    }
+
     public void addGamePlayer(GamePlayer gamePlayer) {
         gamePlayer.setGame(this);
         getGamePlayers().add(gamePlayer);
-    }
-
-    public void setGamePlayers(Set<GamePlayer> gamePlayers) {
-        this.gamePlayers = gamePlayers;
     }
 
     @JsonIgnore

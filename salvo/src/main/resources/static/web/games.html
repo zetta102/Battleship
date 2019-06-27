@@ -1,9 +1,9 @@
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta charset="UTF-8">
-    <meta name="description" content="Game test webstite">
-    <meta name="author" content="Jose Sierra">
+    <meta content="Game test webstite" name="description">
+    <meta content="Jose Sierra" name="author">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <title>Games | Home</title>
@@ -31,12 +31,14 @@
     </div>
     <div class="row">
         <ol>
-            <li v-for="game in games.games">Game #{{game.game_id}} Creation Date: {{game.created}} <a
-                    v-if="game.gamePlayers.length == 1"> Join </a>
+            <li v-for="game in games.games">Game #{{game.game_id}} Creation Date: {{game.created}}
                 <ul>
                     <li v-for="gamePlayer in game.gamePlayers">{{gamePlayer.player.email}} <a
                             :href="'game.html?gp=' + gamePlayer.gamePlayer_id" :data-id="gamePlayer.gamePlayer_id"
-                            v-on:click="el.joingame(event)" v-if="player.email == gamePlayer.player.email"> Enter </a>
+                            v-if="player.email == gamePlayer.player.email"> Enter </a>
+                        <a :href="'game.html?gp=' + gamePlayer.gamePlayer_id"
+                           v-if="(game.gamePlayers.length == 1) && (gamePlayer.player.email != player.email)"
+                           onclick="joingame(event)" :data-id="game.game_id"> Join </a>
                     </li>
                 </ul>
             </li>

@@ -16,16 +16,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 class SalvoController {
     @Autowired
+    PasswordEncoder passwordEncoder;
+    @Autowired
     private PlayerRepository playerRepository;
-
     @Autowired
     private GameRepository gameRepository;
-
     @Autowired
     private GamePlayerRepository gamePlayerRepository;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
     @RequestMapping(path = "/players", method = RequestMethod.POST)
     public ResponseEntity<Object> register(
@@ -57,12 +54,16 @@ class SalvoController {
                 if (player.getId() != gamePlayer.getPlayer().getId()) {
                     responseEntity = new ResponseEntity<>(makeMap("error", "that player is not participating in that game"), HttpStatus.NOT_FOUND);
                 } else {
-                    if (ships.size() != 5) {
-                        responseEntity = new ResponseEntity<>(makeMap("error", "you need 5 ships to play"), HttpStatus.FORBIDDEN);
+                    if (gamePlayer.getShips().size() > 0) {
+                        responseEntity = new ResponseEntity<>(makeMap("error", "you've already placed ships"), HttpStatus.NOT_FOUND);
                     } else {
-                        ships.stream().forEach(ship -> gamePlayer.addShip(ship));
-                        gamePlayerRepository.save(gamePlayer);
-                        responseEntity = new ResponseEntity<>(makeMap("success", "the ships have been placed"), HttpStatus.CREATED);
+                        if (ships.size() != 5) {
+                            responseEntity = new ResponseEntity<>(makeMap("error", "you need 5 ships to play"), HttpStatus.FORBIDDEN);
+                        } else {
+                            ships.stream().forEach(gamePlayer::addShip);
+                            gamePlayerRepository.save(gamePlayer);
+                            responseEntity = new ResponseEntity<>(makeMap("success", "the ships have been placed"), HttpStatus.CREATED);
+                        }
                     }
                 }
             }
@@ -99,24 +100,28 @@ class SalvoController {
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
             responseEntity = new ResponseEntity<>(makeMap("error", "not logged in"), HttpStatus.UNAUTHORIZED);
         } else {
-            Game gameId = gameRepository.findById(nn).orElse(null);
-            if (gameId.getId() != nn) {
-                responseEntity = new ResponseEntity<>(makeMap("error", "that game does not exist"), HttpStatus.FORBIDDEN);
+            Player playerId = playerRepository.findByeMail(authentication.getName());
+            Game game = gameRepository.findById(nn).orElse(null);
+            if (game == null) {
+                responseEntity = new ResponseEntity<>(makeMap("error", "that game does not exist"), HttpStatus.BAD_REQUEST);
             } else {
-                if (gameId.getPlayers().size() != 1) {
+                if (game.getPlayers().size() != 1) {
                     responseEntity = new ResponseEntity<>(makeMap("error", "the game is full"), HttpStatus.FORBIDDEN);
                 } else {
-                    Player player = playerRepository.findByeMail(authentication.getName());
-                    Game game = gameRepository.save(new Game(LocalDateTime.now()));
-                    GamePlayer gamePlayer = new GamePlayer(player, game, LocalDateTime.now());
-                    gamePlayerRepository.save(gamePlayer);
-                    responseEntity = new ResponseEntity<>(makeMap("gamePlayer_id", gamePlayer.getId()), HttpStatus.CREATED);
+                    if (game.getPlayers().stream().anyMatch(gp -> gp.getId() == playerId.getId())) {
+                        responseEntity = new ResponseEntity<>(makeMap("error", "cannot play against yourself"), HttpStatus.FORBIDDEN);
+                    } else {
+                        Player player = playerRepository.findByeMail(authentication.getName());
+                        GamePlayer gamePlayer = new GamePlayer(player, game, LocalDateTime.now());
+                        gamePlayerRepository.save(gamePlayer);
+                        responseEntity = new ResponseEntity<>(makeMap("gamePlayer_id", gamePlayer.getId()), HttpStatus.CREATED);
+                    }
                 }
             }
-
         }
         return responseEntity;
     }
+
 
     @RequestMapping("/games")
     public Map<String, Object> getGames(Authentication authentication) {

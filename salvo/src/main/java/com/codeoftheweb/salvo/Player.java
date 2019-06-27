@@ -24,7 +24,8 @@ public class Player {
     private String eMail;
     private String password;
 
-    public Player() {}
+    public Player() {
+    }
 
     public Player(String mail, String pass) {
         seteMail(mail);
