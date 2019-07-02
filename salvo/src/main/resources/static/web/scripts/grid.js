@@ -1,8 +1,17 @@
+var gpId = paramObj(window.location.href).gp
 
+function paramObj(search) {
+    var obj = {};
+    var reg = /(?:[?&]([^?&#=]+)(?:=([^&#]*))?)(?:#.*)?/g;
 
+    search.replace(reg, function (match, param, val) {
+        obj[decodeURIComponent(param)] = val === undefined ? "" : decodeURIComponent(val);
+    });
 
+    return obj;
+}
 //main function that shoots the gridstack.js framework and loads the grid with the ships
-const loadGrid = function () {
+const loadGrid = function (isStatic) {
     var options = {
         //10 x 10 grid
         width: 10,
@@ -14,12 +23,12 @@ const loadGrid = function () {
         //disables resizing of widgets
         disableResize: true,
         //floating widgets
-		float: true,
+        float: true,
         //removeTimeout: 100,
         //allows the widget to occupy more than one column
         disableOneColumnMode: true,
         //false allows widget dragging, true denies it
-        staticGrid: false,
+        staticGrid: isStatic,
         //activates animations
         animate: true
     }
@@ -33,51 +42,53 @@ const loadGrid = function () {
 
     setShips()
 
-
-
     createGrid(11, $(".grid-ships"), 'ships')
 
 
-    rotateShips("carrier", 5)
-    rotateShips("battleship", 4)
-    rotateShips("submarine",3)
-    rotateShips("destroyer", 3)
-    rotateShips("patrol_boat",2)
+    if (!isStatic) {
+        rotateShips("carrier", 5)
+        rotateShips("battleship", 4)
+        rotateShips("submarine", 3)
+        rotateShips("destroyer", 3)
+        rotateShips("patrol_boat", 2)
+    }
 
     listenBusyCells('ships')
-    $('.grid-stack').on('change', function(){ listenBusyCells('ships')})
+    $('.grid-stack').on('change', function () {
+        listenBusyCells('ships')
+    })
 
 
     //all the functionalities are explained in the gridstack github
     //https://github.com/gridstack/gridstack.js/tree/develop/doc
-    
+
 }
 
 
 //creates the grid structure
-const createGrid = function(size, element, id){
+const createGrid = function (size, element, id) {
 
     let wrapper = document.createElement('DIV')
     wrapper.classList.add('grid-wrapper')
 
-    for(let i = 0; i < size; i++){
+    for (let i = 0; i < size; i++) {
         let row = document.createElement('DIV')
         row.classList.add('grid-row')
-        row.id =id+`grid-row${i}`
+        row.id = `${id}grid-row${i}`
         wrapper.appendChild(row)
 
-        for(let j = 0; j < size; j++){
+        for (let j = 0; j < size; j++) {
             let cell = document.createElement('DIV')
             cell.classList.add('grid-cell')
-            if(i > 0 && j > 0)
-            cell.id = id+`${i - 1}${ j - 1}`
+            if (i > 0 && j > 0)
+                cell.id = `${id}${i - 1}${ j - 1}`
 
-            if(j===0 && i > 0){
+            if (j === 0 && i > 0) {
                 let textNode = document.createElement('SPAN')
-                textNode.innerText = String.fromCharCode(i+64)
+                textNode.innerText = String.fromCharCode(i + 64)
                 cell.appendChild(textNode)
             }
-            if(i === 0 && j > 0){
+            if (i === 0 && j > 0) {
                 let textNode = document.createElement('SPAN')
                 textNode.innerText = j
                 cell.appendChild(textNode)
@@ -90,124 +101,141 @@ const createGrid = function(size, element, id){
 }
 
 //adds a listener to the ships, wich shoots its rotation when clicked
-const rotateShips = function(shipType, cells){
+const rotateShips = function (shipType, cells) {
 
-        $(`#${shipType}`).click(function(){
-        	document.getElementById("alert-text").innerHTML = ""
-            let x = +($(this).attr('data-gs-x'))
-            let y = +($(this).attr('data-gs-y'))
-        if($(this).children().hasClass(`${shipType}Horizontal`)){
-        	if(grid.isAreaEmpty(x,y+1,1,cells) || y + cells < 10){
-	            if(y + cells - 1 < 10){
-	                grid.resize($(this),1,cells);
-	                $(this).children().removeClass(`${shipType}Horizontal`);
-	                $(this).children().addClass(`${shipType}Vertical`);
-	            } else{
-	            	
-	            		grid.update($(this), null, 10 - cells)
-	                	grid.resize($(this),1,cells);
-	                	$(this).children().removeClass(`${shipType}Horizontal`);
-	                	$(this).children().addClass(`${shipType}Vertical`);
-	            }
-                
-                
-            }else{
-            		document.getElementById("alert-text").innerHTML = "A ship is blocking the way!"
+    $(`#${shipType}`).click(function () {
+        document.getElementById("alert-text").innerHTML = ""
+        let x = +($(this).attr('data-gs-x'))
+        let y = +($(this).attr('data-gs-y'))
+        if ($(this).children().hasClass(`${shipType}Horizontal`)) {
+            if (grid.isAreaEmpty(x, y + 1, 1, cells) || y + cells < 10) {
+                if (y + cells - 1 < 10) {
+                    grid.resize($(this), 1, cells);
+                    $(this).children().removeClass(`${shipType}Horizontal`);
+                    $(this).children().addClass(`${shipType}Vertical`);
+                } else {
+
+                    grid.update($(this), null, 10 - cells)
+                    grid.resize($(this), 1, cells);
+                    $(this).children().removeClass(`${shipType}Horizontal`);
+                    $(this).children().addClass(`${shipType}Vertical`);
+                }
+
+
+            } else {
+                document.getElementById("alert-text").innerHTML = "A ship is blocking the way!"
             }
-            
-        }else{
-            if(x + cells - 1  < 10){
-                grid.resize($(this),cells,1);
+
+        } else {
+            if (x + cells - 1 < 10) {
+                grid.resize($(this), cells, 1);
                 $(this).children().addClass(`${shipType}Horizontal`);
                 $(this).children().removeClass(`${shipType}Vertical`);
-            } else{
+            } else {
                 grid.update($(this), 10 - cells)
-                grid.resize($(this),cells,1);
+                grid.resize($(this), cells, 1);
                 $(this).children().addClass(`${shipType}Horizontal`);
                 $(this).children().removeClass(`${shipType}Vertical`);
             }
-            
+
         }
     });
 
 }
 
 //loops over all the grid cells, verifying if they are empty or busy
-const listenBusyCells = function(id){
-    for(let i = 0; i < 10; i++){
-        for(let j = 0; j < 10; j++){
-            if(!grid.isAreaEmpty(i,j)){
+const listenBusyCells = function (id) {
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 10; j++) {
+            if (!grid.isAreaEmpty(i, j)) {
                 $(`#${id}${j}${i}`).addClass('busy-cell').removeClass('empty-cell')
-            } else{
+            } else {
                 $(`#${id}${j}${i}`).removeClass('busy-cell').addClass('empty-cell')
             }
         }
     }
 }
 
-const setShips = function(){
 
-    for(i = 0; i < gamesData.ships.length; i++){
-        let shipType = gamesData.ships[i].type
-        let x = +(gamesData.ships[i].locations[0][1]) - 1
-        let y = stringToInt(gamesData.ships[i].locations[0][0].toUpperCase())
+//gets the locations of the ships from the back-end
+const setShips = function () {
+
+    for (i = 0; i < gamesData.ships.length; i++) {
+        //only the first position of a ship is needed. The remaining positions are given by the orientation and the number of cells
+        let shipType = (gamesData.ships[i].type).toLowerCase()
+        let x = +(gamesData.ships[i].locations[0][1]) - 1 //the number of the first position belongs to the x axis. To match the framework structure beginning at 0, we must substract 1 from it
+        let y = stringToInt(gamesData.ships[i].locations[0][0].toUpperCase()) //the letter of the first position belongs to y axis. In this case we must transform the string to a number, starting from 0.
         let w
         let h
         let orientation
 
-        if(gamesData.ships[i].locations[0][0] == gamesData.ships[i].locations[1][0]){
+
+        if (gamesData.ships[i].locations[0][0] == gamesData.ships[i].locations[1][0]) {
+            //if the letter of the first position is equal to letter of the second position, the ship orientation is horizontal. 
+            //Therefore, the width is equal to the length of the location array and the height is equal to 1
             w = gamesData.ships[i].locations.length
             h = 1
             orientation = "Horizontal"
-        } else{
+        } else {
             h = gamesData.ships[i].locations.length
             w = 1
             orientation = "Vertical"
         }
 
-        grid.addWidget($('<div id="'+shipType+'"><div class="grid-stack-item-content '+shipType+orientation+'"></div><div/>'),
-        x, y, w, h);
+        //Finally, the addWidget function adds the ships to the grid
+        grid.addWidget($('<div id="' + shipType + '"><div class="grid-stack-item-content ' + shipType + orientation + '"></div><div/>'),
+            x, y, w, h);
 
 
 
     }
 }
 
-const setSalvoes = function(){
-
-    for(i = 0; i < gamesData.salvos.length; i++){
-        for(j = 0; j<gamesData.salvos[i].location.length; j++) {
-            let turnNum = gamesData.salvos[i].turnNumber
+//gets the locations of the salvos from the back-end
+const setSalvos = function () {
+    for (i = 0; i < gamesData.salvos.length; i++) {
+        for (j = 0; j < gamesData.salvos[i].location.length; j++) {
+            let turn = gamesData.salvos[i].turn
+            let player = gamesData.salvos[i].player
             let x = +(gamesData.salvos[i].location[j][1]) - 1
             let y = stringToInt(gamesData.salvos[i].location[j][0].toUpperCase())
-
-            document.getElementById("salvoes"+y+x).classList.add("salvo")
-             document.getElementById("salvoes"+y+x).innerHTML=turnNum
+            for (let i = 0; i < gamesData.gamePlayers.size; i++) {
+                if (gamePlayers[i].gamePlayer_id == gpId) {
+                    document.getElementById(`salvos${y}${x}`).classList.add('salvo')
+                    document.getElementById(`salvos${y}${x}`).innerHTML = `<span>${turn}</span>`
+                } else {
+                    if (document.getElementById(`ships${y}${x}`).className.indexOf('busy-cell') != -1) {
+                        document.getElementById(`ships${y}${x}`).classList.remove('busy-cell')
+                        document.getElementById(`ships${y}${x}`).classList.add('ship-down')
+                        document.getElementById(`ships${y}${x}`).innerHTML = `<span>${turn}</span>`
+                    }
+                }
+            }
         }
     }
 }
 
-const stringToInt = function(str){
-    switch(str){
-        case "A": 
+const stringToInt = function (str) {
+    switch (str) {
+        case "A":
             return 0;
-        case "B": 
+        case "B":
             return 1;
-        case "C": 
+        case "C":
             return 2;
-        case "D": 
+        case "D":
             return 3;
-        case "E": 
+        case "E":
             return 4;
-        case "F": 
+        case "F":
             return 5;
-        case "G": 
+        case "G":
             return 6;
-        case "H": 
+        case "H":
             return 7;
-        case "I": 
+        case "I":
             return 8;
-        case "J": 
+        case "J":
             return 9;
     }
 }

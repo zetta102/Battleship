@@ -3,6 +3,7 @@ package com.codeoftheweb.salvo;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 class Salvo {
@@ -60,5 +61,14 @@ class Salvo {
 
     private void setLocations(List<String> locations) {
         this.locations = locations;
+    }
+
+    public List<String> getHits() {
+        List<String> hits = new ArrayList<>();
+        GamePlayer opponent = this.getGamePlayer().getGame().getGamePlayers().stream().filter(gp -> gp.getId() != this.getGamePlayer().getId()).findFirst().orElse(null);
+        if (opponent != null) {
+            hits = this.getLocations().stream().filter(loc -> opponent.getShips().stream().anyMatch(ship -> ship.getLocations().contains(loc))).collect(Collectors.toList());
+        }
+        return hits;
     }
 }

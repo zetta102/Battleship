@@ -52,14 +52,16 @@ function login(evt) {
     $.post("/api/login", {
         email: form["email"].value,
         password: form["password"].value
-    }).done(fetchInfo())
+    }).done(function () {
+        fetchInfo()
+    })
 }
 
 function logout(evt) {
     evt.preventDefault();
-    $.post("/api/logout").done(function(){
-                              fetchInfo()
-                              })
+    $.post("/api/logout").done(function () {
+        fetchInfo()
+    })
 }
 
 function signin(evt) {
@@ -68,10 +70,10 @@ function signin(evt) {
     $.post("/api/players", {
         email: form["email"].value,
         password: form["password"].value
-    }).done(function(){
-     login(evt)
-     })
-    }
+    }).done(function () {
+        login(evt)
+    })
+}
 
 function creategame(evt) {
     evt.preventDefault(evt);

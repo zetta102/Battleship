@@ -136,6 +136,27 @@ class SalvoController {
         return dto;
     }
 
+    @PostMapping("games/players/{gpId}/salvoes")
+    private ResponseEntity<Map<String, Object>> addSalvoes(Authentication authentication, @PathVariable long gpId, @RequestBody List<String> shots) {
+        ResponseEntity<Map<String, Object>> responseEntity;
+        GamePlayer gamePlayer = gamePlayerRepository.findById(gpId).orElse((null));
+        Player player = playerRepository.findByeMail(authentication.getName());
+        if (gamePlayer == null) {
+            responseEntity = new ResponseEntity<>(makeMap("error", "not logged in"), HttpStatus.FORBIDDEN);
+        } else if (gamePlayer.getPlayer().getId() != player.getId()) {
+            responseEntity = new ResponseEntity<>(makeMap("error", "that is not your game"), HttpStatus.FORBIDDEN);
+        } else if (shots.size() > 5) {
+            responseEntity = new ResponseEntity<>(makeMap("error", "you're firing more salvoes than you should"), HttpStatus.FORBIDDEN);
+        } else {
+            int turn = gamePlayer.getSalvoes().size() + 1;
+            Salvo newSalvo = new Salvo(turn, shots);
+            gamePlayer.addSalvo(newSalvo);
+            gamePlayerRepository.save(gamePlayer);
+            responseEntity = new ResponseEntity<>(makeMap("success", "created"), HttpStatus.CREATED);
+        }
+        return responseEntity;
+    }
+
     @RequestMapping(value = "/games", method = RequestMethod.POST)
     private ResponseEntity<Map<String, Object>> createGames(Authentication authentication) {
         ResponseEntity<Map<String, Object>> responseEntity;
@@ -169,6 +190,7 @@ class SalvoController {
         Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("turnNumber", salvo.getTurnNumber());
         dto.put("location", salvo.getLocations());
+        dto.put("hits", salvo.getHits());
         return dto;
     }
 
