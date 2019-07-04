@@ -40,17 +40,29 @@ const loadGrid = function (isStatic) {
 
 
 
-    setShips()
+
 
     createGrid(11, $(".grid-ships"), 'ships')
 
 
     if (!isStatic) {
+        grid.addWidget($('<div id="carrier"><div class="grid-stack-item-content carrierHorizontal"></div><div/>'),
+            1, 0, 5, 1);
+        grid.addWidget($('<div id="battleship"><div class="grid-stack-item-content battleshipHorizontal"></div><div/>'),
+            2, 1, 4, 1);
+        grid.addWidget($('<div id="submarine"><div class="grid-stack-item-content submarineHorizontal"></div><div/>'),
+            3, 2, 3, 1);
+        grid.addWidget($('<div id="destroyer"><div class="grid-stack-item-content destroyerHorizontal"></div><div/>'),
+            4, 3, 3, 1);
+        grid.addWidget($('<div id="patrol_boat"><div class="grid-stack-item-content patrol_boatHorizontal"></div><div/>'),
+            5, 4, 2, 1);
         rotateShips("carrier", 5)
         rotateShips("battleship", 4)
         rotateShips("submarine", 3)
         rotateShips("destroyer", 3)
         rotateShips("patrol_boat", 2)
+    } else {
+        setShips()
     }
 
     listenBusyCells('ships')
@@ -82,6 +94,7 @@ const createGrid = function (size, element, id) {
             cell.classList.add('grid-cell')
             if (i > 0 && j > 0)
                 cell.id = `${id}${i - 1}${ j - 1}`
+            cell.classList.add(`${id}-cell`)
 
             if (j === 0 && i > 0) {
                 let textNode = document.createElement('SPAN')
@@ -191,18 +204,51 @@ const setShips = function () {
     }
 }
 
+const placeShips = function () {
+
+    for (i = 0; i < gamesData.ships.length; i++) {
+        //only the first position of a ship is needed. The remaining positions are given by the orientation and the number of cells
+        let shipType = (gamesData.ships[i].type).toLowerCase()
+        let x = +(gamesData.ships[i].locations[0][1]) - 1 //the number of the first position belongs to the x axis. To match the framework structure beginning at 0, we must substract 1 from it
+        let y = stringToInt(gamesData.ships[i].locations[0][0].toUpperCase()) //the letter of the first position belongs to y axis. In this case we must transform the string to a number, starting from 0.
+        let w
+        let h
+        let orientation
+
+
+        if (gamesData.ships[i].locations[0][0] == gamesData.ships[i].locations[1][0]) {
+            //if the letter of the first position is equal to letter of the second position, the ship orientation is horizontal. 
+            //Therefore, the width is equal to the length of the location array and the height is equal to 1
+            w = gamesData.ships[i].locations.length
+            h = 1
+            orientation = "Horizontal"
+        } else {
+            h = gamesData.ships[i].locations.length
+            w = 1
+            orientation = "Vertical"
+        }
+
+        //Finally, the addWidget function adds the ships to the grid
+        grid.addWidget($('<div id="' + shipType + '"><div class="grid-stack-item-content ' + shipType + orientation + '"></div><div/>'),
+            x, y, w, h);
+
+
+
+    }
+}
+
 //gets the locations of the salvos from the back-end
 const setSalvos = function () {
     for (i = 0; i < gamesData.salvos.length; i++) {
         for (j = 0; j < gamesData.salvos[i].location.length; j++) {
-            let turn = gamesData.salvos[i].turn
-            let player = gamesData.salvos[i].player
+            let turn = gamesData.salvos[i].turnNumber
+            let player = gamesData.player
             let x = +(gamesData.salvos[i].location[j][1]) - 1
             let y = stringToInt(gamesData.salvos[i].location[j][0].toUpperCase())
-            for (let i = 0; i < gamesData.gamePlayers.size; i++) {
-                if (gamePlayers[i].gamePlayer_id == gpId) {
-                    document.getElementById(`salvos${y}${x}`).classList.add('salvo')
-                    document.getElementById(`salvos${y}${x}`).innerHTML = `<span>${turn}</span>`
+            for (let i = 0; i < gamesData.gamePlayers.length; i++) {
+                if (gamesData.gamePlayers[i].player.email == player) {
+                    document.getElementById(`salvoes${y}${x}`).classList.add('salvo')
+                    document.getElementById(`salvoes${y}${x}`).innerHTML = `<span>${turn}</span>`
                 } else {
                     if (document.getElementById(`ships${y}${x}`).className.indexOf('busy-cell') != -1) {
                         document.getElementById(`ships${y}${x}`).classList.remove('busy-cell')

@@ -60,7 +60,7 @@ class SalvoController {
                         if (ships.size() != 5) {
                             responseEntity = new ResponseEntity<>(makeMap("error", "you need 5 ships to play"), HttpStatus.FORBIDDEN);
                         } else {
-                            ships.stream().forEach(gamePlayer::addShip);
+                            ships.forEach(gamePlayer::addShip);
                             gamePlayerRepository.save(gamePlayer);
                             responseEntity = new ResponseEntity<>(makeMap("success", "the ships have been placed"), HttpStatus.CREATED);
                         }
@@ -81,9 +81,8 @@ class SalvoController {
                 responseEntity = new ResponseEntity<>(makeMap("error", "unauthorized"), HttpStatus.UNAUTHORIZED);
             } else {
                 Player player = playerRepository.findByeMail(authentication.getName());
-
                 if (gamePlayer.getPlayer().getId() == player.getId()) {
-                    responseEntity = new ResponseEntity<>(this.game_viewDTO(gamePlayer), HttpStatus.OK);
+                    responseEntity = new ResponseEntity<>(this.game_viewDTO(gamePlayer, authentication), HttpStatus.OK);
                 } else {
                     responseEntity = new ResponseEntity<>(makeMap("error", "not logged in"), HttpStatus.FORBIDDEN);
                 }
@@ -176,8 +175,9 @@ class SalvoController {
         return authentication == null || authentication instanceof AnonymousAuthenticationToken;
     }
 
-    private Map<String, Object> game_viewDTO(GamePlayer gamePlayer) {
+    private Map<String, Object> game_viewDTO(GamePlayer gamePlayer, Authentication authentication) {
         Map<String, Object> dto = new LinkedHashMap<>();
+        dto.put("player", authentication.getName());
         dto.put("view_id", gamePlayer.getGame().getId());
         dto.put("created", gamePlayer.getGame().getCreationDate());
         dto.put("gamePlayers", gamePlayer.getGame().getGamePlayers().stream().map(this::gamePlayersDTO).collect(Collectors.toList()));
