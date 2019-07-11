@@ -3,6 +3,19 @@ var gamesData
 
 var gpId = paramObj(window.location.href).gp
 
+function salvoesFunction() {
+    let info = document.getElementsByClassName("salvoes-cell");
+    let salvoes = Array.from(info).filter(item => {
+        if (!item.classList.contains('salvo')) {
+            return item
+        }
+    });
+    salvoes.forEach(salvo =>
+        salvo.addEventListener("click", function (event) {
+            placeSalvoes(event)
+        }))
+}
+
 fetch("/api/game_view/" + gpId)
     .then(function (response) {
         return response.json()
@@ -19,6 +32,7 @@ fetch("/api/game_view/" + gpId)
         }
         createGrid(11, $(".grid-salvoes"), 'salvoes')
         setSalvos()
+        salvoesFunction()
     })
     .catch(function (error) {
         console.log(error)
@@ -26,28 +40,42 @@ fetch("/api/game_view/" + gpId)
 
 
 function fetchInfo() {
-    $(".grid-salvoes").empty();
-    $(".grid-ships").empty();
     fetch("/api/game_view/" + gpId)
-    .then(function (response) {
-        return response.json()
-        console.log(gamesData)
-    })
-    .then(function (json) {
-        gamesData = json
-        if (gamesData.ships.length > 0) {
-            //if true, the grid is initialized in static mode, that is, the ships can't be moved
-            loadGrid(true)
-        } else {
-            //On the contrary, the grid is initialized in dynamic mode, allowing the user to move the ships
-            loadGrid(false)
-        }
-        createGrid(11, $(".grid-salvoes"), 'salvoes')
-        setSalvos()
-    })
-    .catch(function (error) {
-        console.log(error)
-    })
+        .then(function (response) {
+            return response.json()
+            console.log(gamesData)
+        })
+        .then(function (json) {
+            gamesData = json
+            if (gamesData.ships.length > 0) {
+                //if true, the grid is initialized in static mode, that is, the ships can't be moved
+                loadGrid(true)
+            } else {
+                //On the contrary, the grid is initialized in dynamic mode, allowing the user to move the ships
+                loadGrid(false)
+            }
+            createGrid(11, $(".grid-salvoes"), 'salvoes')
+            setSalvos()
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+}
+
+function fetchData() {
+    fetch("/api/game_view/" + gpId)
+        .then(function (response) {
+            return response.json()
+            console.log(gamesData)
+        }).catch(function (error) {
+            console.log(error)
+        })
+}
+
+function placeSalvoes(event) {
+    if (!event.target.classList.contains('salvo')) {
+        event.target.classList.toggle('fired');
+    }
 }
 
 function paramObj(search) {
@@ -89,7 +117,6 @@ function getLocation(y) {
 }
 
 function sendShips() {
-    let shipsData = []
     var info = document.querySelectorAll(".grid-stack-item")
     var ships = Array.from(info)
     var data = []
@@ -122,41 +149,39 @@ function sendShips() {
         })
         .done(function (response, status, jqXHR) {
             alert("Ships added: " + response);
-
         })
         .fail(function (jqXHR, status, httpError) {
             alert("Failed to add ships: " + textStatus + " " + httpError);
         })
-    fetchInfo()
+    fetchData();
+    location.reload(false);
 }
 
-function sendSalvoes() {
-    var info = document.querySelectorAll(".salvoes-cell")
-    var salvoes = Array.from(info)
-    var data = []
-    salvoes.forEach(salvo => {
-        let salvoData = {};
-        let salvoLoc = [];
-        let height = 1;
-        let width = 1;
-        let x = parseInt(salvo.id.slice(-1));
-        let y = parseInt(salvo.id.slice(7, 8));
-        salvoLoc.push(getLocation(y) + (x));
-        salvoData.locations = salvoLoc
-        data.push(shipData);
-    })
 
+
+function sendSalvoes() {
+    var info = document.querySelectorAll(".fired")
+    var salvoes = Array.from(info)
+    var salvoLoc = [];
+    salvoes.forEach(salvo => {
+        var height = 1;
+        var width = 1;
+        var x = parseInt(salvo.id.slice(-1)) + 1;
+        var y = parseInt(salvo.id.slice(7, 8));
+        salvoLoc.push(getLocation(y) + (x));
+
+    })
     $.post({
-            url: "/api/games/players/" + gpId + "/ships",
-            data: JSON.stringify(data),
+            url: "/api/games/players/" + gpId + "/salvoes",
+            data: JSON.stringify(salvoLoc),
             dataType: "text",
             contentType: "application/json"
         })
         .done(function (response, status, jqXHR) {
-            alert("Ships added: " + response);
+            alert("Salvoes fired: " + response);
 
         })
         .fail(function (jqXHR, status, httpError) {
-            alert("Failed to add ships: " + textStatus + " " + httpError);
+            alert("Salvoes not fired: " + textStatus + " " + httpError);
         })
 }

@@ -3,6 +3,7 @@ package com.codeoftheweb.salvo;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Entity
@@ -70,5 +71,17 @@ class Salvo {
             hits = this.getLocations().stream().filter(loc -> opponent.getShips().stream().anyMatch(ship -> ship.getLocations().contains(loc))).collect(Collectors.toList());
         }
         return hits;
+    }
+
+    public List<Map<String, Object>> getSunk() {
+        List<Map<String, Object>> sunk = new ArrayList<>();
+        List<String> locs = new ArrayList<>();
+        this.getGamePlayer().getSalvoes().stream().filter(salvo -> salvo.getTurnNumber() <= this.getTurnNumber()).forEach(salvo -> locs.addAll(salvo.getLocations()));
+        GamePlayer opponent = this.getGamePlayer().getGame().getGamePlayers().stream().filter(gp -> gp.getId() != this.getGamePlayer().getId()).findFirst().orElse(null);
+        if (opponent != null) {
+
+            sunk = opponent.getShips().stream().filter(ship -> locs.containsAll(ship.getLocations())).map(Ship::ShipDTO).collect(Collectors.toList());
+        }
+        return sunk;
     }
 }

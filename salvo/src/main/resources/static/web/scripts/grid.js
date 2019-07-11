@@ -92,10 +92,11 @@ const createGrid = function (size, element, id) {
         for (let j = 0; j < size; j++) {
             let cell = document.createElement('DIV')
             cell.classList.add('grid-cell')
-            if (i > 0 && j > 0)
+            if (i > 0 && j > 0) {
                 cell.id = `${id}${i - 1}${ j - 1}`
-            cell.classList.add(`${id}-cell`)
+                cell.classList.add(`${id}-cell`)
 
+            }
             if (j === 0 && i > 0) {
                 let textNode = document.createElement('SPAN')
                 textNode.innerText = String.fromCharCode(i + 64)

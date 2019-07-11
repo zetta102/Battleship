@@ -191,6 +191,7 @@ class SalvoController {
         dto.put("turnNumber", salvo.getTurnNumber());
         dto.put("location", salvo.getLocations());
         dto.put("hits", salvo.getHits());
+        dto.put("sunk", salvo.getSunk());
         return dto;
     }
 
@@ -220,7 +221,7 @@ class SalvoController {
         return dto;
     }
 
-    private Map<String, Object> ShipDTO(Ship ship) {
+    public Map<String, Object> ShipDTO(Ship ship) {
         Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("locations", ship.getLocations());
         dto.put("type", ship.getShipType());

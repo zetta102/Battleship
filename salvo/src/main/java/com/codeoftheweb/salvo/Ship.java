@@ -3,7 +3,9 @@ package com.codeoftheweb.salvo;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 class Ship {
@@ -65,4 +67,12 @@ class Ship {
     public void setList(List<String> locations) {
         this.setLocations(locations);
     }
+
+    public Map<String, Object> ShipDTO() {
+        Map<String, Object> dto = new LinkedHashMap<>();
+        dto.put("locations", this.getLocations());
+        dto.put("type", this.getShipType());
+        return dto;
+    }
+
 }
