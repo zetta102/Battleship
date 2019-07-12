@@ -205,38 +205,6 @@ const setShips = function () {
     }
 }
 
-const placeShips = function () {
-
-    for (i = 0; i < gamesData.ships.length; i++) {
-        //only the first position of a ship is needed. The remaining positions are given by the orientation and the number of cells
-        let shipType = (gamesData.ships[i].type).toLowerCase()
-        let x = +(gamesData.ships[i].locations[0][1]) - 1 //the number of the first position belongs to the x axis. To match the framework structure beginning at 0, we must substract 1 from it
-        let y = stringToInt(gamesData.ships[i].locations[0][0].toUpperCase()) //the letter of the first position belongs to y axis. In this case we must transform the string to a number, starting from 0.
-        let w
-        let h
-        let orientation
-
-
-        if (gamesData.ships[i].locations[0][0] == gamesData.ships[i].locations[1][0]) {
-            //if the letter of the first position is equal to letter of the second position, the ship orientation is horizontal. 
-            //Therefore, the width is equal to the length of the location array and the height is equal to 1
-            w = gamesData.ships[i].locations.length
-            h = 1
-            orientation = "Horizontal"
-        } else {
-            h = gamesData.ships[i].locations.length
-            w = 1
-            orientation = "Vertical"
-        }
-
-        //Finally, the addWidget function adds the ships to the grid
-        grid.addWidget($('<div id="' + shipType + '"><div class="grid-stack-item-content ' + shipType + orientation + '"></div><div/>'),
-            x, y, w, h);
-
-
-
-    }
-}
 
 //gets the locations of the salvos from the back-end
 const setSalvos = function () {
@@ -244,20 +212,24 @@ const setSalvos = function () {
         for (j = 0; j < gamesData.salvos[i].location.length; j++) {
             let turn = gamesData.salvos[i].turnNumber
             let player = gamesData.player
-            let x = +(gamesData.salvos[i].location[j][1]) - 1
+            let x = +(gamesData.salvos[i].location[j].slice(1)) - 1
             let y = stringToInt(gamesData.salvos[i].location[j][0].toUpperCase())
-            for (let i = 0; i < gamesData.gamePlayers.length; i++) {
-                if (gamesData.gamePlayers[i].player.email == player) {
-                    document.getElementById(`salvoes${y}${x}`).classList.add('salvo')
-                    document.getElementById(`salvoes${y}${x}`).innerHTML = `<span>${turn}</span>`
-                } else {
-                    if (document.getElementById(`ships${y}${x}`).className.indexOf('busy-cell') != -1) {
-                        document.getElementById(`ships${y}${x}`).classList.remove('busy-cell')
-                        document.getElementById(`ships${y}${x}`).classList.add('ship-down')
-                        document.getElementById(`ships${y}${x}`).innerHTML = `<span>${turn}</span>`
-                    }
+            let isHit = gamesData.salvos[i].hits.indexOf(gamesData.salvos[i].location[j]) != - 1 ? true : false
+
+            if (gamesData.salvos[i].player == player) {
+                document.getElementById(`salvoes${y}${x}`).classList.add('salvo')
+                document.getElementById(`salvoes${y}${x}`).innerHTML = `<span>${turn}</span>`
+                if(isHit){
+                    document.getElementById(`salvoes${y}${x}`).classList.add('hit')
+                }
+            } else {
+                if (document.getElementById(`ships${y}${x}`).className.indexOf('busy-cell') != -1) {
+                    document.getElementById(`ships${y}${x}`).classList.remove('busy-cell')
+                    document.getElementById(`ships${y}${x}`).classList.add('ship-down')
+                    document.getElementById(`ships${y}${x}`).innerHTML = `<span>${turn}</span>`
                 }
             }
+
         }
     }
 }
