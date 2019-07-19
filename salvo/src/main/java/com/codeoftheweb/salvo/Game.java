@@ -26,11 +26,22 @@ public class Game {
     @OneToMany(mappedBy = "game", fetch = FetchType.EAGER)
     private Set<Score> scores = new HashSet<>();
 
+    private GameState GameState;
+
     public Game() {
+    }
+
+    public Game(LocalDateTime creationDate, GameState gameState) {
+        this.setCreationDate(creationDate);
+        this.setGameState(gameState);
     }
 
     public Game(LocalDateTime creationDate) {
         this.setCreationDate(creationDate);
+    }
+
+    public Game(GameState gameState) {
+        this.setGameState(gameState);
     }
 
     public Game(Set<GamePlayer> gamePlayers) {
@@ -77,5 +88,13 @@ public class Game {
 
     public void setScores(Set<Score> scores) {
         this.scores = scores;
+    }
+
+    public GameState getGameState() {
+        return GameState;
+    }
+
+    public void setGameState(GameState gameState) {
+        GameState = gameState;
     }
 }

@@ -84,4 +84,16 @@ class Salvo {
         }
         return sunk;
     }
+
+    public List<Map<String, Object>> getSunkCount() {
+        List<Map<String, Object>> sunkCount = new ArrayList<>();
+        List<String> locs = new ArrayList<>();
+        this.getGamePlayer().getSalvoes().stream().filter(salvo -> salvo.getTurnNumber() <= this.getTurnNumber()).forEach(salvo -> locs.addAll(salvo.getLocations()));
+        GamePlayer opponent = this.getGamePlayer().getGame().getGamePlayers().stream().filter(gp -> gp.getId() != this.getGamePlayer().getId()).findFirst().orElse(null);
+        if (opponent != null) {
+
+            sunkCount = opponent.getShips().stream().filter(ship -> locs.containsAll(ship.getLocations())).map(Ship::ShipDTO).collect(Collectors.toList());
+        }
+        return sunkCount;
+    }
 }

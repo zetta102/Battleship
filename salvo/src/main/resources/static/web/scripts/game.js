@@ -184,4 +184,5 @@ function sendSalvoes() {
         .fail(function (jqXHR, status, httpError) {
             alert("Salvoes not fired: " + textStatus + " " + httpError);
         })
+    location.reload(false);
 }

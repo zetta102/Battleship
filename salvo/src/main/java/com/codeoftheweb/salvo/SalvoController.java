@@ -151,6 +151,10 @@ class SalvoController {
             Salvo newSalvo = new Salvo(turn, shots);
             gamePlayer.addSalvo(newSalvo);
             gamePlayerRepository.save(gamePlayer);
+
+            //verificar los estados de juego y los puntajes
+
+
             responseEntity = new ResponseEntity<>(makeMap("success", "created"), HttpStatus.CREATED);
         }
         return responseEntity;
@@ -163,6 +167,7 @@ class SalvoController {
             responseEntity = new ResponseEntity<>(makeMap("error", "not logged in"), HttpStatus.FORBIDDEN);
         } else {
             Player player = playerRepository.findByeMail(authentication.getName());
+            Game gameInfo = new Game(LocalDateTime.now());
             Game game = gameRepository.save(new Game(LocalDateTime.now()));
             GamePlayer gamePlayer = new GamePlayer(player, game, LocalDateTime.now());
             gamePlayerRepository.save(gamePlayer);
